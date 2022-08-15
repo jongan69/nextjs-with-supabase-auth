@@ -7,6 +7,7 @@ const LoginPage = () => {
   const [data, setData] = useState({})
 
   useEffect(() => {
+    console.log('User data! ', user)
     async function loadData() {
       const { data } = await supabaseClient.from('test').select('*')
       setData(data)
@@ -15,29 +16,35 @@ const LoginPage = () => {
     if (user) loadData()
   }, [user])
 
-  if (!user)
+  if (user)
     return (
       <>
-        {error && <p>{error.message}</p>}
-        <Auth
-          // view="update_password"
-          supabaseClient={supabaseClient}
-          providers={['google', 'github']}
-          socialLayout="horizontal"
-          socialButtonSize="xlarge"
-        />
+        <h1> Welcome</h1>
+        <div style={{ "padding": "10%" }}>
+          <button onClick={() => supabaseClient.auth.signOut()}>Sign out</button>
+          <p>User:</p>
+          <pre>{JSON.stringify(user, null, 2)}</pre>
+          {/* <p>client-side data fetching with RLS</p> */}
+          <pre>User Data: {JSON.stringify(data, null, 2)}</pre>
+        </div>
+      </>
+    ); else {
+    return (
+      <>
+        <h1> Supabase Login</h1>
+        <div style={{ "padding": "10%" }}>
+          {error && <p>{error.message}</p>}
+          <Auth
+            // view="update_password"
+            supabaseClient={supabaseClient}
+            providers={['google', 'github', 'apple']}
+            socialLayout="horizontal"
+            socialButtonSize="xlarge"
+          />
+        </div>
       </>
     )
-
-  return (
-    <>
-      <button onClick={() => supabaseClient.auth.signOut()}>Sign out</button>
-      <p>user:</p>
-      <pre>{JSON.stringify(user, null, 2)}</pre>
-      <p>client-side data fetching with RLS</p>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
-    </>
-  )
+  }
 }
 
 export default LoginPage
